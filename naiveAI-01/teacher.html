@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: '微軟正黑體', sans-serif; background-color: #050510; color: #00ffcc; text-align: center; padding: 50px; margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    h1 { font-size: 3.5em; color: #ff007f; text-shadow: 0 0 15px #ff007f; margin-top: 0; }
+    .panel { background: #111; border: 2px solid #00ffcc; padding: 40px; border-radius: 15px; box-shadow: 0 0 30px rgba(0,255,204,0.2); width: 80%; max-width: 900px; }
+    input { font-size: 2em; padding: 15px; background: #222; color: #fff; border: 2px solid #ff007f; text-align: center; width: 300px; border-radius: 8px; }
+    button { font-size: 1.8em; padding: 15px 40px; margin: 20px; background-color: #00ffcc; color: #000; border: none; cursor: pointer; font-weight: bold; border-radius: 8px; box-shadow: 0 0 15px #00ffcc; transition: 0.2s; }
+    button:hover { background-color: #fff; box-shadow: 0 0 25px #fff; transform: scale(1.05); }
+    .hidden { display: none !important; }
+    .riddle-text { font-size: 3em; line-height: 1.6; margin: 40px 0; color: #fff; white-space: pre-wrap; text-align: left; padding: 0 10%; }
+    .answer-text { font-size: 4em; color: #ffcc00; text-shadow: 0 0 20px #ffcc00; margin-top: 30px; font-weight: bold;}
+    .author-text { font-size: 2em; color: #aaa; margin-top: 15px; }
+    #status-msg { font-size: 1.5em; margin-top: 20px; color: #ff007f; }
+  </style>
+</head>
+<body>
+  <h1>⚓ 艦橋指揮中心：全息謎語雷達</h1>
+
+  <div id="setup-section" class="panel">
+    <h2>步驟一：鎖定艦隊目標</h2>
+    <input type="text" id="classCode" placeholder="輸入艦隊代碼 (例: 405)">
+    <br>
+    <button onclick="loadQuestions()">📥 載入彈藥庫</button>
+    <p id="status-msg"></p>
+  </div>
+
+  <div id="game-section" class="panel hidden">
+    <h2 id="question-counter" style="color: #aaa;">準備發射...</h2>
+    
+    <div id="riddle-display" class="riddle-text" style="text-align: center;">請按下「掃描海域」按鈕抽取第一道謎語！</div>
+    
+    <div id="answer-display" class="hidden">
+      <div class="answer-text" id="the-answer"></div>
+      <div class="author-text" id="the-author"></div>
+    </div>
+
+    <div>
+      <button id="btn-next" onclick="drawQuestion()">📡 掃描海域 (抽題)</button>
+      <button id="btn-reveal" onclick="revealAnswer()" class="hidden" style="background-color: #ff007f; box-shadow: 0 0 15px #ff007f; color: white;">🎯 揭曉謎底</button>
+    </div>
+  </div>
+
+  <script>
+    let currentQuestions = [];
+    let currentQuestionIndex = -1;
+
+    // 呼叫後端讀取試算表資料
+    function loadQuestions() {
+      const code = document.getElementById('classCode').value;
+      if (!code) {
+        alert("船長，請輸入艦隊代碼！");
+        return;
+      }
+      document.getElementById('status-msg').innerText = "連線資料庫中，請稍候...";
+      
+      google.script.run
+        .withSuccessHandler(function(questions) {
+          if (questions.length === 0) {
+            document.getElementById('status-msg').innerText = "報告船長，該海域尚未偵測到任何彈藥！";
+          } else {
+            currentQuestions = questions;
+            // 將題目順序隨機洗牌
+            currentQuestions.sort(() => Math.random() - 0.5);
+            
+            // 切換畫面
+            document.getElementById('setup-section').classList.add('hidden');
+            document.getElementById('game-section').classList.remove('hidden');
+            document.getElementById('question-counter').innerText = `已載入 ${questions.length} 發彈藥！等待指令。`;
+          }
+        })
+        .getQuestionsByClass(code);
+    }
+
+    // 隨機抽出一題顯示
+    function drawQuestion() {
+      if (currentQuestions.length === 0) {
+        document.getElementById('riddle-display').innerText = "所有彈藥已發射完畢！";
+        document.getElementById('riddle-display').style.textAlign = "center";
+        document.getElementById('btn-next').classList.add('hidden');
+        document.getElementById('answer-display').classList.add('hidden');
+        return;
+      }
+      
+      // 從陣列最後面拿出一個題目
+      currentQuestionIndex = currentQuestions.length - 1; 
+      const q = currentQuestions[currentQuestionIndex];
+      
+      // 更新畫面顯示謎語 (隱藏答案)
+      document.getElementById('riddle-display').innerText = q.riddle;
+      document.getElementById('riddle-display').style.textAlign = "left";
+      document.getElementById('answer-display').classList.add('hidden');
+      
+      // 切換按鈕
+      document.getElementById('btn-reveal').classList.remove('hidden');
+      document.getElementById('btn-next').classList.add('hidden');
+      document.getElementById('question-counter').innerText = `剩餘彈藥：${currentQuestions.length} 發`;
+    }
+
+    // 揭曉答案與作者
+    function revealAnswer() {
+      const q = currentQuestions[currentQuestionIndex];
+      
+      document.getElementById('the-answer').innerText = `謎底：【${q.answer}】`;
+      document.getElementById('the-author').innerText = `造船水手：${q.seatNumber} 號`;
+      
+      // 顯示答案，切換按鈕
+      document.getElementById('answer-display').classList.remove('hidden');
+      document.getElementById('btn-reveal').classList.add('hidden');
+      document.getElementById('btn-next').classList.remove('hidden');
+      document.getElementById('btn-next').innerText = "📡 掃描下一題";
+      
+      // 將這題從陣列中移除，避免重複抽到
+      currentQuestions.pop(); 
+    }
+  </script>
+</body>
+</html>

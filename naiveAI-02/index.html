@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生活尋寶猜謎機 (親子共戰版)</title>
+    <style>
+        :root {
+            --primary-color: #FF9800; /* 改用充滿活力的橘色 */
+            --bg-color: #FFF3E0;
+            --text-color: #333;
+            --chat-bg-ai: #E1F5FE;
+            --chat-bg-user: #FFE0B2;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            font-size: 1.3rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .container {
+            flex: 1;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .panel {
+            background: white;
+            padding: 2rem 1rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        h2 { margin-top: 0; color: #424242; }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 24px;
+            font-size: 1.2rem;
+            border-radius: 50px; /* 圓角大按鈕更適合點擊 */
+            cursor: pointer;
+            width: 90%;
+            max-width: 300px;
+            margin-top: 15px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(255, 152, 0, 0.3);
+            transition: transform 0.1s;
+        }
+        button:active { transform: scale(0.96); }
+        button:disabled { background-color: #BDBDBD; box-shadow: none; cursor: not-allowed; }
+
+        /* 特效字體 */
+        #secret-word-display {
+            color: #E91E63;
+            font-size: 3.5rem;
+            margin: 15px 0;
+            text-shadow: 2px 2px 0px #FCE4EC;
+        }
+
+        /* 遊戲互動區 (滿版設計) */
+        #game-screen {
+            display: none; 
+            flex: 1;
+            flex-direction: column;
+            padding: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+        .status-bar {
+            text-align: center;
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        #chat-history {
+            flex: 1;
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .message {
+            max-width: 85%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            line-height: 1.5;
+            font-size: 1.1rem;
+        }
+        .msg-ai {
+            background-color: var(--chat-bg-ai);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        .msg-user {
+            background-color: var(--chat-bg-user);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            outline: none;
+        }
+        .input-area input:focus { border-color: var(--primary-color); }
+        .input-area button {
+            width: auto;
+            margin: 0;
+            padding: 12px 20px;
+            border-radius: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>🕵️‍♂️ 生活尋寶猜謎機</header>
+
+    <div class="container">
+        
+        <div id="start-screen" class="panel">
+            <h2>準備好挑戰 AI 了嗎？</h2>
+            <p>點擊下方按鈕，讓 AI 隨機出一個秘密題目！</p>
+            <button id="generate-btn" onclick="generateWord()">🎲 請 AI 出個題目</button>
+        </div>
+
+        <div id="parent-reveal-screen" class="panel" style="display: none;">
+            <h2>🤫 家長專屬秘密任務</h2>
+            <p>今天的秘密目標是：</p>
+            <h1 id="secret-word-display">載入中...</h1>
+            <p>請家長把這個答案記在心裡，引導小朋友觀察並說出特徵！</p>
+            <button onclick="startGame()">📱 交給小朋友，開始挑戰！</button>
+        </div>
+
+        <div id="game-screen">
+            <div class="status-bar" id="status-bar">目前回合：0</div>
+            <div id="chat-history">
+                <div class="message msg-ai">你好！我是一台很聰明的猜謎機，請告訴我你看到的物品有什麼特徵吧！</div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="clue-input" placeholder="例如：綠色的皮...">
+                <button id="send-btn" onclick="sendClue()">送出</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 【重要：請務必填入你剛剛部署的 GAS 網頁應用程式網址】
+        const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxTtqNsH7WJOxOARy8BIqCbm5RHfKetqxRC-Ws-jOlo9DRcYkatQrAuYANKLCnnWxU5ng/exec'; 
+
+        let targetWord = '';
+        let cluesArray = [];
+        let turnCount = 0;
+
+        // 任務一：請 AI 自動出題
+        async function generateWord() {
+            const btn = document.getElementById('generate-btn');
+            btn.innerText = '🧠 AI 絞盡腦汁中...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "generateWord" }), // 加上 action 標籤
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                const result = await response.json();
+                
+                if(result.status === 'success') {
+                    targetWord = result.word;
+                    document.getElementById('secret-word-display').innerText = targetWord;
+                    // 切換畫面
+                    document.getElementById('start-screen').style.display = 'none';
+                    document.getElementById('parent-reveal-screen').style.display = 'flex';
+                } else {
+                    alert('出題失敗，請再試一次！');
+                    btn.innerText = '🎲 請 AI 出個題目';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('網路連線異常，請檢查網路。');
+                btn.innerText = '🎲 請 AI 出個題目';
+                btn.disabled = false;
+            }
+        }
+
+        // 任務二：家長確認完畢，切換到小朋友遊戲畫面
+        function startGame() {
+            document.getElementById('parent-reveal-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+        }
+
+        // 任務三：送出小朋友的特徵線索給 AI 猜測
+        async function sendClue() {
+            const clueInputEl = document.getElementById('clue-input');
+            const clue = clueInputEl.value.trim();
+            
+            if (!clue) return;
+
+            // 更新畫面：顯示玩家輸入
+            addMessage(clue, 'user');
+            clueInputEl.value = '';
+            
+            // 更新狀態與陣列
+            cluesArray.push(clue);
+            turnCount++;
+            document.getElementById('status-bar').innerText = `目前回合：${turnCount}`;
+
+            // 準備發送給 GAS API
+            const payload = {
+                action: "guess", // 加上 action 標籤告訴後端要執行猜測
+                targetWord: targetWord,
+                clues: cluesArray
+            };
+
+            const sendBtn = document.getElementById('send-btn');
+            sendBtn.innerText = '...';
+            sendBtn.disabled = true;
+
+            try {
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                const result = await response.json();
+                
+                if(result.status === 'success') {
+                    addMessage(result.reply, 'ai');
+                } else {
+                    addMessage("連線有點狀況，可以再試一次嗎？", 'ai');
+                }
+            } catch (error) {
+                addMessage("網路好像斷了，請檢查連線喔！", 'ai');
+            } finally {
+                sendBtn.innerText = '送出';
+                sendBtn.disabled = false;
+                // 自動將焦點移回輸入框，方便連續輸入
+                clueInputEl.focus(); 
+            }
+        }
+
+        function addMessage(text, sender) {
+            const historyObj = document.getElementById('chat-history');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message msg-${sender}`;
+            msgDiv.innerText = text;
+            historyObj.appendChild(msgDiv);
+            historyObj.scrollTop = historyObj.scrollHeight;
+        }
+
+        // 支援按下 Enter 鍵直接送出
+        document.getElementById('clue-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendClue();
+            }
+        });
+    </script>
+</body>
+</html>

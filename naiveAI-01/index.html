@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body { font-family: sans-serif; padding: 20px; background-color: #121212; color: #00ffcc; }
+      input, textarea { width: 100%; margin-bottom: 10px; background: #222; color: #fff; border: 1px solid #00ffcc; padding: 8px;}
+      button { background-color: #ff007f; color: white; padding: 10px 20px; border: none; cursor: pointer; font-weight: bold;}
+      .hidden { display: none; }
+    </style>
+  </head>
+  <body>
+    <h2>⚓ 水手造船廠：謎語生成終端機</h2>
+
+    <div id="input-section">
+      <input type="text" id="classCode" placeholder="艦隊代碼 (例如: 405)">
+      <input type="text" id="seatNumber" placeholder="水手座號 (例如: 12)">
+      <input type="text" id="answer" placeholder="謎底 (例如: 狗狗)" oninput="updatePrompt()">
+      <input type="text" id="feature1" placeholder="特徵 1 (例如: 搖尾巴)" oninput="updatePrompt()">
+      <input type="text" id="feature2" placeholder="特徵 2 (例如: 啃骨頭)" oninput="updatePrompt()">
+      <input type="text" id="feature3" placeholder="特徵 3 (例如: 很忠心)" oninput="updatePrompt()">
+    </div>
+
+    <h3>🔮 魔法詠唱陣 (系統自動組合)</h3>
+    <textarea id="promptPreview" rows="4" readonly></textarea>
+    <br>
+    <button id="callAiBtn" onclick="callGemini()">發射詠唱！呼叫 AI</button>
+
+    <div id="result-section" class="hidden">
+      <h3>🤖 AI 副駕的謎語：</h3>
+      <textarea id="aiResult" rows="5" readonly></textarea>
+      <br>
+      <button onclick="callGemini()">🔄 不滿意，重新詠唱</button>
+      <button onclick="submitToDatabase()">🎯 太棒了，裝填彈藥！</button>
+    </div>
+
+    <script>
+      // 即時更新 Prompt 預覽
+      function updatePrompt() {
+        const answer = document.getElementById('answer').value || '【謎底】';
+        const f1 = document.getElementById('feature1').value || '【特徵1】';
+        const f2 = document.getElementById('feature2').value || '【特徵2】';
+        const f3 = document.getElementById('feature3').value || '【特徵3】';
+        
+        const promptTemplate = `AI 副駕你好，我要出一個謎語，謎底是${answer}。請你幫我把下面這三個特徵，寫成一首四句話、有押韻的謎語，先不要公佈答案喔！特徵1：${f1}，特徵2：${f2}，特徵3：${f3}。`;
+        
+        document.getElementById('promptPreview').value = promptTemplate;
+      }
+
+      // 呼叫後端 Gemini
+      function callGemini() {
+        const promptText = document.getElementById('promptPreview').value;
+        document.getElementById('callAiBtn').innerText = "通訊中，請稍候...";
+        
+        // 呼叫 GAS 後端的 askGemini 函數
+        google.script.run
+          .withSuccessHandler(function(response) {
+            // 成功接收 AI 回覆後的動作
+            document.getElementById('aiResult').value = response;
+            document.getElementById('result-section').classList.remove('hidden');
+            document.getElementById('callAiBtn').innerText = "發射詠唱！呼叫 AI";
+          })
+          .askGemini(promptText);
+      }
+
+      // 將最終結果送進資料庫
+      function submitToDatabase() {
+        const data = {
+          classCode: document.getElementById('classCode').value,
+          seatNumber: document.getElementById('seatNumber').value,
+          answer: document.getElementById('answer').value,
+          riddle: document.getElementById('aiResult').value
+        };
+        
+        // 呼叫 GAS 後端的 saveQuestion 函數
+        google.script.run
+          .withSuccessHandler(function(msg) {
+            alert(msg); // 顯示裝填成功訊息
+            location.reload(); // 重新載入頁面準備下一題
+          })
+          .saveQuestion(data);
+      }
+    </script>
+  </body>
+</html>
