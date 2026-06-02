@@ -1,1 +1,179 @@
-<h1>INDEX</h1>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cap Balung · Naive AI 教學遊戲集</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --muted: #5c5c7a;
+      --accent: #2563eb;
+      --shadow: 0 8px 24px rgba(26, 26, 46, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+      background: linear-gradient(160deg, #e8f4fc 0%, var(--bg) 45%, #fff8e7 100%);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 3rem;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    header h1 {
+      font-size: clamp(1.75rem, 5vw, 2.25rem);
+      margin: 0 0 0.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 36rem;
+      margin-inline: auto;
+    }
+    .grid {
+      display: grid;
+      gap: 1.25rem;
+    }
+    @media (min-width: 640px) {
+      .grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(26, 26, 46, 0.12);
+    }
+    .card-icon {
+      font-size: 2.5rem;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+    .card h2 {
+      font-size: 1.15rem;
+      margin: 0 0 0.35rem;
+      font-weight: 700;
+    }
+    .card .folder {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: ui-monospace, monospace;
+      margin-bottom: 0.75rem;
+    }
+    .card .desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      flex: 1;
+      margin: 0 0 1.25rem;
+    }
+    .links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .links a {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.65rem 1rem;
+      border-radius: 10px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .links a.primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .links a.primary:hover { background: #1d4ed8; }
+    .links a.secondary {
+      background: #f1f5f9;
+      color: var(--text);
+      border: 1px solid #e2e8f0;
+    }
+    .links a.secondary:hover { background: #e2e8f0; }
+    .card--01 { --accent: #ff007f; }
+    .card--01 .links a.primary { background: #ff007f; }
+    .card--01 .links a.primary:hover { background: #d6006a; }
+    .card--02 { --accent: #ff9800; }
+    .card--02 .links a.primary { background: #ff9800; }
+    .card--02 .links a.primary:hover { background: #e68900; }
+    .card--03 { --accent: #e65100; }
+    .card--03 .links a.primary { background: #e65100; }
+    .card--03 .links a.primary:hover { background: #bf4400; }
+    footer {
+      margin-top: 2.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Cap Balung · Naive AI 教學遊戲集</h1>
+      <p>國小與親子現場可用的生成式 AI 互動專案。選擇下方遊戲進入；各專案前端為靜態 HTML，完整功能需搭配 Google Apps Script 後端部署。</p>
+    </header>
+
+    <div class="grid">
+      <article class="card card--01">
+        <div class="card-icon">⚓</div>
+        <h2>AI 水手造船廠</h2>
+        <p class="folder">naiveAI-01</p>
+        <p class="desc">引導式 AI 互動解謎：學生用平板寫謎語、裝填彈藥，教師用大螢幕雷達抽題搶答。雙頻道課堂設計，含自動資料清潔機制。</p>
+        <div class="links">
+          <a class="primary" href="naiveAI-01/">學生端 · 謎語生成</a>
+          <a class="secondary" href="naiveAI-01/teacher.html">教師端 · 大螢幕雷達</a>
+        </div>
+      </article>
+
+      <article class="card card--02">
+        <div class="card-icon">🕵️‍♂️</div>
+        <h2>生活尋寶猜謎機</h2>
+        <p class="folder">naiveAI-02</p>
+        <p class="desc">親子共戰「反向猜謎」：AI 出題，孩子用線索引導 AI 猜出秘密目標。訓練觀察力與口語描述，適合假日戶外或居家探索。</p>
+        <div class="links">
+          <a class="primary" href="naiveAI-02/">開始親子尋寶</a>
+        </div>
+      </article>
+
+      <article class="card card--03">
+        <div class="card-icon">🍳</div>
+        <h2>瘋狂早餐大冒險</h2>
+        <p class="folder">naiveAI-03</p>
+        <p class="desc">四年級英語口說情境遊戲：選項推進關卡、語音辨識通關，完成後由 AI 生成爆笑專屬結局。聽說讀一次滿足。</p>
+        <div class="links">
+          <a class="primary" href="naiveAI-03/">開始早餐冒險</a>
+        </div>
+      </article>
+    </div>
+
+    <footer>
+      <p>部署與 API 設定請見各資料夾內的 <code>readme.md</code> 與 <code>code.gs</code> / <code>backend.gs</code>。</p>
+    </footer>
+  </div>
+</body>
+</html>
