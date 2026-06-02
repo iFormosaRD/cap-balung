@@ -6,7 +6,7 @@
 
 ## 🎮 立即試玩 (Live Demo)
 
-👉 **[點擊這裡立即開始親子尋寶挑戰！](https://captain-balung.github.io/naiveAI-02/)**
+👉 **[點擊這裡立即開始親子尋寶挑戰！（adopted to this repo）](https://iformosard.github.io/cap-balung/naiveAI-02/)**
 
 *(註：本展示網址由作者維護，歡迎直接使用手機瀏覽器開啟遊玩。若需長期供班級或大量學生使用，建議參考下方教學自行佈署。)*
 
