@@ -5,7 +5,7 @@
 
 ## 🎮 立即試玩 (Live Demo)
 
-👉 **[點擊這裡立即開始瘋狂早餐大冒險挑戰！](https://captain-balung.github.io/naiveAI-03/)**
+👉 **[點擊這裡立即開始瘋狂早餐大冒險挑戰！](https://iformosard.github.io/cap-balung/naiveAI-03/)**
 
 *(註：本展示網址由作者維護，歡迎直接使用手機瀏覽器開啟遊玩。若需長期供班級或大量學生使用，建議參考下方教學自行佈署。)*
 
